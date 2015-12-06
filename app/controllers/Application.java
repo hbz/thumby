@@ -20,8 +20,6 @@ package controllers;
 import helper.ThumbnailGenerator;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -101,7 +99,6 @@ public class Application extends MyController {
 		    MediaType.parse(contentType), size, url);
 	    return thumbnail;
 	} catch(Exception e){
-		e.printStackTrace();
 		Thumbnail thumbnail = getDefaultThumbnail(url, size);
 		return thumbnail;
 	} finally {
