@@ -19,6 +19,9 @@ package controllers;
 
 import helper.ThumbnailGenerator;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -97,6 +100,10 @@ public class Application extends MyController {
 	    Thumbnail thumbnail = createThumbnail(connection.getInputStream(),
 		    MediaType.parse(contentType), size, url);
 	    return thumbnail;
+	} catch(Exception e){
+		e.printStackTrace();
+		Thumbnail thumbnail = getDefaultThumbnail(url, size);
+		return thumbnail;
 	} finally {
 	    if (connection != null)
 		connection.disconnect();
@@ -112,5 +119,13 @@ public class Application extends MyController {
 	result.name = url.getPath();
 	result.originalContentType = contentType.toString();
 	return result;
+    }
+    
+    private static Thumbnail getDefaultThumbnail(URL url, int size) {
+		Thumbnail result = new Thumbnail();
+		result.id = UUID.randomUUID().toString();
+		result.name = url.getPath();
+		result.thumb = new File("public/images/thumb-error.jpg");
+    	return result;
     }
 }

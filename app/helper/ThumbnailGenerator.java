@@ -129,7 +129,7 @@ public class ThumbnailGenerator {
 	    BufferedImage thumbnail = Scalr.resize(ImageIO.read(in), size);
 	    ImageIO.write(thumbnail, "jpeg", output);
 	} catch (IOException e) {
-	    throw new RuntimeException(e);
+		throw new RuntimeException(e);
 	}
 	return output;
     }
