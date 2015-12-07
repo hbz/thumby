@@ -71,7 +71,7 @@ public class Application extends MyController {
 			}
 			response()
 				.setHeader("Content-Disposition", result.name);
-			response().setHeader("Content-Type", "image/jpeg");
+			response().setHeader("Content-Type", "image/jpg");
 			return ok(result.thumb);
 		    } catch (Exception e) {
 			response().setHeader("Content-Type", "text/plain");
@@ -90,16 +90,17 @@ public class Application extends MyController {
 
     private static Thumbnail uploadUrl(URL url, int size) throws Exception {
 	HttpURLConnection connection = null;
+	String contentType = null;
 	try {
 	    connection = (HttpURLConnection) url.openConnection();
 	    connection.setRequestMethod("GET");
 	    connection.connect();
-	    String contentType = connection.getContentType();
+	    contentType = connection.getContentType();
 	    Thumbnail thumbnail = createThumbnail(connection.getInputStream(),
 		    MediaType.parse(contentType), size, url);
 	    return thumbnail;
 	} catch(Exception e){
-		Thumbnail thumbnail = getDefaultThumbnail(url, size);
+		Thumbnail thumbnail = getDefaultThumbnail(url, size, contentType);
 		return thumbnail;
 	} finally {
 	    if (connection != null)
@@ -118,11 +119,18 @@ public class Application extends MyController {
 	return result;
     }
     
-    private static Thumbnail getDefaultThumbnail(URL url, int size) {
+    private static Thumbnail getDefaultThumbnail(URL url, int size, String contentType) {
 		Thumbnail result = new Thumbnail();
+		String tbPath = "public/images/oxygen/mimetypes/";
+		if(contentType != null){
+			tbPath = tbPath + contentType.toString().replace("/", "-") + ".png";
+		} else {
+			tbPath = "public/images/thumb-error.jpg";
+		}
 		result.id = UUID.randomUUID().toString();
-		result.name = url.getPath();
-		result.thumb = new File("public/images/thumb-error.jpg");
+		result.name = tbPath;
+		result.originalContentType = "image/jpg";
+		result.thumb = new File(tbPath);
     	return result;
     }
 }
