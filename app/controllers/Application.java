@@ -19,6 +19,7 @@ package controllers;
 
 import helper.ThumbnailGenerator;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -74,7 +75,7 @@ public class Application extends MyController {
 			}
 			response()
 				.setHeader("Content-Disposition", result.name);
-			response().setHeader("Content-Type", "image/jpeg");
+			response().setHeader("Content-Type", "image/jpg");
 			return ok(result.thumb);
 		    } catch (Exception e) {
 			response().setHeader("Content-Type", "text/plain");
@@ -93,14 +94,19 @@ public class Application extends MyController {
 
     private static Thumbnail uploadUrl(URL url, int size) throws Exception {
 	HttpURLConnection connection = null;
+	String contentType = null;
 	try {
 	    connection = (HttpURLConnection) url.openConnection();
 	    connection.setRequestMethod("GET");
 	    connection.connect();
-	    String contentType = connection.getContentType();
+	    contentType = connection.getContentType();
 	    Thumbnail thumbnail = createThumbnail(connection.getInputStream(),
 		    MediaType.parse(contentType), size, url);
 	    return thumbnail;
+	} catch(Exception e){
+		Thumbnail thumbnail = getDefaultThumbnail(url, size, contentType);
+		e.getStackTrace();
+		return thumbnail;
 	} finally {
 	    if (connection != null)
 		connection.disconnect();
@@ -108,7 +114,7 @@ public class Application extends MyController {
     }
 
     private static Thumbnail createThumbnail(InputStream in,
-	    MediaType contentType, int size, URL url) {
+	MediaType contentType, int size, URL url) {
 	Thumbnail result = new Thumbnail();
 	result.id = UUID.randomUUID().toString();
 	result.thumb = ThumbnailGenerator
@@ -116,5 +122,19 @@ public class Application extends MyController {
 	result.name = url.getPath();
 	result.originalContentType = contentType.toString();
 	return result;
+    }
+    
+    private static Thumbnail getDefaultThumbnail(URL url, int size, String contentType) {
+		Thumbnail result = new Thumbnail();
+		String tbPath = defaultThumb;;
+		result.name = tbPath;
+		result.originalContentType = "image/jpg";
+		result.thumb = new File(tbPath);
+		if(contentType != null){
+			result.thumb = ThumbnailGenerator.generateMimeThumbnail(contentType, mimeIconPath);
+			result.originalContentType = "image/png";
+		}
+		result.id = UUID.randomUUID().toString();
+    	return result;
     }
 }

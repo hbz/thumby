@@ -34,6 +34,12 @@ public class MyController extends Controller {
 
     protected static String[] whitelist = Play.application().configuration()
 	    .getString("thumby.whitelist").split(",");
+    
+    protected static String mimeIconPath = Play.application().configuration()
+    		.getString("thumby.iconpath");
+
+    protected static String defaultThumb = Play.application().configuration()
+    		.getString("thumby.defaultthumb");
 
     private static void setJsonHeader() {
 	response().setHeader("Access-Control-Allow-Origin", "*");

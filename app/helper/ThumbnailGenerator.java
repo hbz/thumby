@@ -31,6 +31,8 @@ import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.imgscalr.Scalr;
 
+import play.Play;
+
 import com.google.common.io.Files;
 import com.google.common.net.MediaType;
 
@@ -63,7 +65,8 @@ public class ThumbnailGenerator {
 	if (contentType.is(MediaType.PDF)) {
 	    return generateThumbnailFromPdf(in, size);
 	}
-	return null;
+	return generateMimeThumbnail(contentType.toString(), Play.application().configuration()
+    		.getString("thumby.iconpath"));
     }
 
     private static File generateThumbnailFromPdf(InputStream in, int size) {
@@ -129,8 +132,19 @@ public class ThumbnailGenerator {
 	    BufferedImage thumbnail = Scalr.resize(ImageIO.read(in), size);
 	    ImageIO.write(thumbnail, "jpeg", output);
 	} catch (IOException e) {
-	    throw new RuntimeException(e);
+		throw new RuntimeException(e);
 	}
 	return output;
+    }
+    
+    public static File generateMimeThumbnail(String contentType, String mimePath){
+    File output = new File(Play.application().configuration()
+    		.getString("thumby.defaultthumb"));
+	String oxPath = mimePath;
+	String[] fName = contentType.toString().split(";");
+	if(new File(oxPath + fName[0].toString().replace("/", "-") + ".png").exists()){
+			output = new File(oxPath + fName[0].toString().replace("/", "-") + ".png");
+	}
+    return output;
     }
 }
