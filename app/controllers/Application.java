@@ -101,6 +101,7 @@ public class Application extends MyController {
 	    return thumbnail;
 	} catch(Exception e){
 		Thumbnail thumbnail = getDefaultThumbnail(url, size, contentType);
+		e.getStackTrace();
 		return thumbnail;
 	} finally {
 	    if (connection != null)
@@ -109,7 +110,7 @@ public class Application extends MyController {
     }
 
     private static Thumbnail createThumbnail(InputStream in,
-	    MediaType contentType, int size, URL url) {
+	MediaType contentType, int size, URL url) {
 	Thumbnail result = new Thumbnail();
 	result.id = UUID.randomUUID().toString();
 	result.thumb = ThumbnailGenerator
@@ -121,16 +122,15 @@ public class Application extends MyController {
     
     private static Thumbnail getDefaultThumbnail(URL url, int size, String contentType) {
 		Thumbnail result = new Thumbnail();
-		String tbPath = "public/images/oxygen/mimetypes/";
-		if(contentType != null){
-			tbPath = tbPath + contentType.toString().replace("/", "-") + ".png";
-		} else {
-			tbPath = "public/images/thumb-error.jpg";
-		}
-		result.id = UUID.randomUUID().toString();
+		String tbPath = defaultThumb;;
 		result.name = tbPath;
 		result.originalContentType = "image/jpg";
 		result.thumb = new File(tbPath);
+		if(contentType != null){
+			result.thumb = ThumbnailGenerator.generateMimeThumbnail(contentType, mimeIconPath);
+			result.originalContentType = "image/png";
+		}
+		result.id = UUID.randomUUID().toString();
     	return result;
     }
 }
